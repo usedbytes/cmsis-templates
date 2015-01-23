@@ -29,6 +29,7 @@ LDFLAGS = -mcpu=cortex-m0 -mthumb $(OPT) -nostartfiles -Wl,-Map=$(OBJDIR)/$(PROJ
 ASFLAGS = -ahls -mcpu=cortex-m0 -mthumb
 
 # Compiler/Assembler/Linker Paths
+HOSTCC = gcc
 CROSS = arm-none-eabi-
 CC = $(CROSS)gcc
 AS = $(CROSS)as
@@ -40,7 +41,7 @@ REMOVE = rm -f
 
 #########################################################################
 
-.PHONY: all
+.PHONY: all checksum
 all: $(PROJECT).hex $(PROJECT).bin
 
 $(PROJECT).bin: $(PROJECT).elf
@@ -51,6 +52,12 @@ $(PROJECT).hex: $(PROJECT).elf
 
 $(PROJECT).elf: $(OBJECTS) $(LINKER_SCRIPT)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(PROJECT).elf
+
+lpc_checksum: lpc_checksum.c
+	$(HOSTCC) $< -o $@
+
+$(PROJECT)_checksum.bin: $(PROJECT).bin
+	./lpc_checksum $< $@
 
 .PHONY: stats
 stats: $(PROJECT).elf
